@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtual Nömrə Satın Al</title>
+<style>
+body{font-family:Arial;background:#f0f2f5;margin:0;padding:0;}
+header{background:#4CAF50;color:white;padding:20px;text-align:center;}
+header h1{margin:0;font-size:24px;}
+.container{padding:15px;display:flex;flex-wrap:wrap;justify-content:center;}
+.number-box{background:white;margin:10px;padding:15px;border-radius:10px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.15);width:140px;cursor:pointer;}
+.number-box.selected{border:2px solid #4CAF50;}
+#buyButton{display:block;margin:20px auto;padding:12px 20px;font-size:16px;border:none;border-radius:8px;background:#4CAF50;color:white;cursor:pointer;display:none;}
+#buyButton:hover{background:#45a049;}
+#paymentForm{display:none;max-width:400px;margin:20px auto;background:white;padding:20px;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+#paymentForm input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #ccc;}
+#paySubmit{background:#4CAF50;color:white;padding:10px;border:none;width:100%;border-radius:6px;cursor:pointer;font-size:16px;}
+#paySubmit:hover{background:#45a049;}
+#success{display:none;text-align:center;margin-top:20px;font-size:18px;color:green;}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Virtual Nömrə Seçimi</h1>
+<p id="countryName">Ölkə: </p>
+</header>
+
+<div class="container" id="numbersContainer"></div>
+<button id="buyButton" onclick="showPaymentForm()">Satın Al</button>
+
+<div id="paymentForm">
+<h3>Ödəniş Məlumatları</h3>
+<input type="text" id="cardName" placeholder="Kart Sahibinin Adı">
+<input type="text" id="cardNumber" placeholder="Kart Nömrəsi">
+<input type="text" id="expiry" placeholder="MM/YY">
+<input type="text" id="cvv" placeholder="CVV">
+<button id="paySubmit" onclick="processPayment()">Ödə</button>
+</div>
+
+<div id="success"></div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const country = urlParams.get('country');
+const countryNames={us:'USA',de:'Germany',tr:'Turkey',uk:'UK',fr:'France',ca:'Canada'};
+document.getElementById('countryName').innerText='Ölkə: '+(countryNames[country]||'Unknown');
+
+let selectedNumber=null;
+function generateNumbers(country){
+let numbers=[];
+for(let i=0;i<15;i++){
+let prefix='';
+switch(country){case'us':prefix='+1';break;case'de':prefix='+49';break;case'tr':prefix='+90';break;case'uk':prefix='+44';break;case'fr':prefix='+33';break;case'ca':prefix='+1';break;default:prefix='+00';}
+let num=Math.floor(1000000+Math.random()*9000000);
+numbers.push(prefix+num);}
+return numbers;}
+
+const container=document.getElementById('numbersContainer');
+const numbers=generateNumbers(country);
+numbers.forEach(num=>{
+const div=document.createElement('div');div.className='number-box';div.innerText=num;
+div.onclick=function(){
+document.querySelectorAll('.number-box').forEach(b=>b.classList.remove('selected'));
+div.classList.add('selected');selectedNumber=num;
+document.getElementById('buyButton').style.display='block';}
+container.appendChild(div);});
+
+function showPaymentForm(){if(!selectedNumber)return;
+document.getElementById('paymentForm').style.display='block';
+document.getElementById('buyButton').style.display='none';}
+
+function processPayment(){
+const name=document.getElementById('cardName').value;
+const number=document.getElementById('cardNumber').value;
+const expiry=document.getElementById('expiry').value;
+const cvv=document.getElementById('cvv').value;
+if(!name||!number||!expiry||!cvv){alert('Zəhmət olmasa bütün məlumatları doldurun!');return;}
+document.getElementById('paymentForm').style.display='none';
+document.getElementById('success').style.display='block';
+document.getElementById('success').innerText='Təbriklər! '+selectedNumber+' nömrəsi alındı ✅';
+// Burada backend ilə ödəniş təsdiqi və nömrə aktivləşdirmə əlavə et
+}
+</script>
+
+</body>
+  </html>
